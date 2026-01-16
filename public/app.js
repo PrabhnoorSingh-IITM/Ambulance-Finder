@@ -2,7 +2,7 @@ const { useState, useEffect } = React;
 
 // Initialize Google Maps callback
 window.initMap = function() {
-    console.log('Google Maps API loaded');
+    console.log('Google Maps API loaded successfully');
 };
 
 // Backend Database Simulation - Delhi Area Hospitals with real data
