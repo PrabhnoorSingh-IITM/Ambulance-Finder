@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Ambulance Finder</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="stylesheet" href="src/index.css">
 </head>
 <body>
@@ -22,6 +24,10 @@
             const [hospitals, setHospitals] = useState([]);
             const [loading, setLoading] = useState(false);
             const [locationError, setLocationError] = useState(null);
+            const [adminPassword, setAdminPassword] = useState('');
+            const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+            const [map, setMap] = useState(null);
+            const [mapInitialized, setMapInitialized] = useState(false);
 
             const mockHospitals = [
                 {
@@ -59,6 +65,67 @@
             useEffect(() => {
                 setHospitals(mockHospitals);
             }, []);
+
+            useEffect(() => {
+                if (currentScreen === 'hospitals' && !mapInitialized) {
+                    setTimeout(() => {
+                        initializeMap();
+                        setMapInitialized(true);
+                    }, 100);
+                }
+            }, [currentScreen, mapInitialized]);
+
+            const initializeMap = () => {
+                if (!map) {
+                    const mapInstance = L.map('map').setView([28.6139, 77.2090], 12);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© OpenStreetMap contributors'
+                    }).addTo(mapInstance);
+                    setMap(mapInstance);
+
+                    // Add hospital markers
+                    mockHospitals.forEach(hospital => {
+                        const markerColor = hospital.ambulanceAvailability === 'available' ? 'green' : 
+                                         hospital.ambulanceAvailability === 'busy' ? 'red' : 'gray';
+                        
+                        const marker = L.marker([hospital.latitude, hospital.longitude]).addTo(mapInstance);
+                        marker.bindPopup(`
+                            <div class="text-center">
+                                <strong>${hospital.name}</strong><br>
+                                Status: ${hospital.ambulanceAvailability}<br>
+                                <button onclick="window.location.href='tel:${hospital.ambulancePhone}'" 
+                                        class="bg-red-600 text-white px-2 py-1 rounded text-sm mt-1">
+                                    Call Ambulance
+                                </button>
+                            </div>
+                        `);
+                    });
+
+                    // Add user location marker if available
+                    if (userLocation) {
+                        L.marker([userLocation.latitude, userLocation.longitude])
+                            .addTo(mapInstance)
+                            .bindPopup('Your Location')
+                            .openPopup();
+                    }
+                }
+            };
+
+            const handleAdminLogin = () => {
+                if (adminPassword === 'admin123') {
+                    setIsAdminAuthenticated(true);
+                    setCurrentScreen('admin');
+                    setAdminPassword('');
+                } else {
+                    alert('Incorrect password. Please try again.');
+                    setAdminPassword('');
+                }
+            };
+
+            const handleAdminLogout = () => {
+                setIsAdminAuthenticated(false);
+                setCurrentScreen('home');
+            };
 
             const requestLocation = async () => {
                 setLoading(true);
@@ -145,6 +212,15 @@
                                 View Hospitals (Demo)
                             </button>
                         </div>
+
+                        <div className="mt-12">
+                            <button
+                                onClick={() => setCurrentScreen('admin-login')}
+                                className="text-white opacity-75 hover:opacity-100 text-lg underline transition-opacity"
+                            >
+                                Admin Panel
+                            </button>
+                        </div>
                     </div>
                 </div>
             );
@@ -171,6 +247,18 @@
                     </div>
 
                     <div className="max-w-6xl mx-auto p-6">
+                        {/* Map Section */}
+                        <div className="mb-8">
+                            <div className="bg-white rounded-2xl shadow-lg p-4">
+                                <h2 className="text-xl font-black text-gray-800 mb-4">
+                                    <i className="fas fa-map-marked-alt mr-2"></i>
+                                    Hospital Locations Map
+                                </h2>
+                                <div id="map" className="h-96 rounded-lg border-2 border-gray-200"></div>
+                            </div>
+                        </div>
+
+                        {/* Hospital Cards */}
                         <div className="space-y-6">
                             {hospitals.map(hospital => {
                                 const statusColor = hospital.ambulanceAvailability === 'available' 
@@ -242,10 +330,182 @@
                 </div>
             );
 
+            const AdminLoginScreen = () => (
+                <div className="min-h-screen bg-gray-800 flex flex-col items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
+                        <div className="text-center mb-8">
+                            <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <i className="fas fa-shield-alt text-3xl text-white"></i>
+                            </div>
+                            <h1 className="text-3xl font-black text-gray-800 mb-3">Admin Login</h1>
+                            <p className="text-gray-600">Enter password to access admin panel</p>
+                        </div>
+
+                        <div className="space-y-6">
+                            <div>
+                                <label className="block text-gray-700 font-medium mb-2">Password</label>
+                                <input
+                                    type="password"
+                                    value={adminPassword}
+                                    onChange={(e) => setAdminPassword(e.target.value)}
+                                    onKeyPress={(e) => e.key === 'Enter' && handleAdminLogin()}
+                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-red-500 focus:outline-none text-lg"
+                                    placeholder="Enter admin password"
+                                />
+                            </div>
+
+                            <button
+                                onClick={handleAdminLogin}
+                                className="w-full bg-gray-800 text-white px-6 py-4 rounded-xl font-black text-lg hover:bg-gray-700 transition-all shadow-lg"
+                            >
+                                <i className="fas fa-sign-in-alt mr-3"></i>
+                                Login to Admin Panel
+                            </button>
+
+                            <button
+                                onClick={() => setCurrentScreen('home')}
+                                className="w-full text-gray-600 hover:text-gray-800 text-lg underline transition-colors"
+                            >
+                                Back to Home
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+
+            const AdminPanel = () => (
+                <div className="min-h-screen bg-gray-50">
+                    <div className="bg-gray-800 text-white p-6 shadow-xl">
+                        <div className="max-w-6xl mx-auto">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center">
+                                    <button
+                                        onClick={handleAdminLogout}
+                                        className="mr-6 text-white hover:text-gray-300 transition-colors"
+                                    >
+                                        <i className="fas fa-arrow-left text-2xl"></i>
+                                    </button>
+                                    <h1 className="text-2xl font-black">Admin Panel</h1>
+                                </div>
+                                <button
+                                    onClick={handleAdminLogout}
+                                    className="bg-gray-700 px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors text-lg"
+                                >
+                                    <i className="fas fa-sign-out-alt mr-2"></i>
+                                    Logout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="max-w-6xl mx-auto p-6">
+                        <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                            <h2 className="text-2xl font-black text-gray-800 mb-6">
+                                <i className="fas fa-cog mr-3"></i>
+                                Update Hospital Availability
+                            </h2>
+                            <p className="text-gray-600 text-lg mb-8">
+                                Update ambulance availability status for each hospital. Changes reflect immediately in the hospital list.
+                            </p>
+
+                            <div className="space-y-6">
+                                {hospitals.map(hospital => {
+                                    const statusColor = hospital.ambulanceAvailability === 'available' 
+                                        ? 'text-green-600 bg-green-100 border-green-200'
+                                        : hospital.ambulanceAvailability === 'busy'
+                                        ? 'text-red-600 bg-red-100 border-red-200'
+                                        : 'text-gray-600 bg-gray-100 border-gray-200';
+                                    
+                                    const statusIcon = hospital.ambulanceAvailability === 'available' 
+                                        ? 'check-circle'
+                                        : hospital.ambulanceAvailability === 'busy'
+                                        ? 'times-circle'
+                                        : 'question-circle';
+                                    
+                                    const statusText = hospital.ambulanceAvailability === 'available' 
+                                        ? 'Available'
+                                        : hospital.ambulanceAvailability === 'busy'
+                                        ? 'Busy'
+                                        : 'Unknown';
+
+                                    return (
+                                        <div key={hospital.id} className="border-2 border-gray-200 rounded-2xl p-6 hover:shadow-lg transition-all">
+                                            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start mb-6">
+                                                <div>
+                                                    <h3 className="text-xl font-black text-gray-800 mb-3">{hospital.name}</h3>
+                                                    <div className="text-gray-500 text-base mb-4">
+                                                        <i className="fas fa-clock mr-2"></i>
+                                                        <span>Last updated: {Math.floor((new Date() - hospital.lastUpdated) / 60000)} minutes ago</span>
+                                                    </div>
+                                                </div>
+                                                <div className={`inline-flex items-center px-4 py-2 rounded-full text-lg font-medium ${statusColor} border-2`}>
+                                                    <i className={`fas fa-${statusIcon} mr-2`}></i>
+                                                    <span>{statusText}</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-wrap gap-3">
+                                                <button
+                                                    onClick={() => {
+                                                        const updatedHospitals = hospitals.map(h => 
+                                                            h.id === hospital.id 
+                                                                ? { ...h, ambulanceAvailability: 'available', lastUpdated: new Date() }
+                                                                : h
+                                                        );
+                                                        setHospitals(updatedHospitals);
+                                                        alert('Hospital availability updated successfully!');
+                                                    }}
+                                                    className="bg-green-600 text-white hover:bg-green-700 px-6 py-3 rounded-xl font-medium transition-all transform hover:scale-105 text-lg shadow-lg"
+                                                >
+                                                    <i className="fas fa-check mr-2"></i>
+                                                    Available
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        const updatedHospitals = hospitals.map(h => 
+                                                            h.id === hospital.id 
+                                                                ? { ...h, ambulanceAvailability: 'busy', lastUpdated: new Date() }
+                                                                : h
+                                                        );
+                                                        setHospitals(updatedHospitals);
+                                                        alert('Hospital availability updated successfully!');
+                                                    }}
+                                                    className="bg-red-600 text-white hover:bg-red-700 px-6 py-3 rounded-xl font-medium transition-all transform hover:scale-105 text-lg shadow-lg"
+                                                >
+                                                    <i className="fas fa-times mr-2"></i>
+                                                    Busy
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        const updatedHospitals = hospitals.map(h => 
+                                                            h.id === hospital.id 
+                                                                ? { ...h, ambulanceAvailability: 'unknown', lastUpdated: new Date() }
+                                                                : h
+                                                        );
+                                                        setHospitals(updatedHospitals);
+                                                        alert('Hospital availability updated successfully!');
+                                                    }}
+                                                    className="bg-gray-600 text-white hover:bg-gray-700 px-6 py-3 rounded-xl font-medium transition-all transform hover:scale-105 text-lg shadow-lg"
+                                                >
+                                                    <i className="fas fa-question mr-2"></i>
+                                                    Unknown
+                                                </button>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+
             return (
                 <div>
                     {currentScreen === 'home' && <HomeScreen />}
                     {currentScreen === 'hospitals' && <HospitalListScreen />}
+                    {currentScreen === 'admin-login' && <AdminLoginScreen />}
+                    {currentScreen === 'admin' && isAdminAuthenticated && <AdminPanel />}
                 </div>
             );
         };
