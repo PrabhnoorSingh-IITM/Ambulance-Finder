@@ -1,5 +1,10 @@
 const { useState, useEffect } = React;
 
+// Initialize Google Maps callback
+window.initMap = function() {
+    console.log('Google Maps API loaded');
+};
+
 // Backend Database Simulation - Delhi Area Hospitals with real data
 const hospitalDatabase = [
     {
@@ -125,14 +130,14 @@ const App = () => {
     useEffect(() => {
         if (currentView === 'hospitals' && !map) {
             // Wait for Google Maps to load
-            const checkGoogleMaps = () => {
-                if (window.google && window.google.maps) {
-                    setTimeout(() => initializeMap(), 500);
+            const initializeWhenReady = () => {
+                if (window.google && window.google.maps && document.getElementById('map')) {
+                    initializeMap();
                 } else {
-                    setTimeout(checkGoogleMaps, 100);
+                    setTimeout(initializeWhenReady, 200);
                 }
             };
-            checkGoogleMaps();
+            initializeWhenReady();
         }
     }, [currentView, userLocation, hospitals]);
 
