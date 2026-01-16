@@ -1,0 +1,58 @@
+/* Hospitals Page Specific Styles */
+
+.hospital-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hospital-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}
+
+.call-button {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.call-button:hover {
+    transform: scale(1.05);
+}
+
+.call-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.distance-text {
+    display: flex;
+    align-items: center;
+    color: #374151;
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+}
+
+.distance-text i {
+    margin-right: 0.75rem;
+    color: #dc2626;
+}
+
+.timestamp-text {
+    display: flex;
+    align-items: center;
+    color: #6b7280;
+    font-size: 1rem;
+    line-height: 1.5rem;
+}
+
+.timestamp-text i {
+    margin-right: 0.5rem;
+}

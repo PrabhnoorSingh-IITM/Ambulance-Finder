@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Smart Ambulance Finder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <div class="bg-gray-800 text-white p-6 shadow-xl">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <button onclick="window.location.href='index.html'" class="mr-6 text-white hover:text-gray-300 transition-colors">
+                        <i class="fas fa-arrow-left text-2xl"></i>
+                    </button>
+                    <h1 class="text-2xl font-black">Admin Panel</h1>
+                </div>
+                <button onclick="window.location.href='index.html'" class="bg-gray-700 px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors text-lg">
+                    Exit Admin
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto p-6">
+        <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-black text-gray-800 mb-6">
+                <i class="fas fa-cog mr-3"></i>
+                Update Hospital Availability
+            </h2>
+            <p class="text-gray-600 text-lg mb-8">
+                Update ambulance availability status for each hospital. Changes reflect immediately in the hospital list.
+            </p>
+
+            <div id="admin-hospitals-list" class="space-y-6">
+                <!-- Hospitals will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock hospital data
+        const hospitals = [
+            {
+                id: "1",
+                name: "AIIMS Delhi",
+                ambulanceAvailability: "available",
+                lastUpdated: new Date(Date.now() - 15 * 60 * 1000)
+            },
+            {
+                id: "2", 
+                name: "Safdarjung Hospital",
+                ambulanceAvailability: "busy",
+                lastUpdated: new Date(Date.now() - 5 * 60 * 1000)
+            },
+            {
+                id: "3",
+                name: "Max Super Speciality Hospital",
+                ambulanceAvailability: "available",
+                lastUpdated: new Date(Date.now() - 30 * 60 * 1000)
+            },
+            {
+                id: "4",
+                name: "Apollo Hospital",
+                ambulanceAvailability: "unknown",
+                lastUpdated: new Date(Date.now() - 120 * 60 * 1000)
+            },
+            {
+                id: "5",
+                name: "Fortis Escorts Heart Institute",
+                ambulanceAvailability: "available",
+                lastUpdated: new Date(Date.now() - 45 * 60 * 1000)
+            },
+            {
+                id: "6",
+                name: "Sir Ganga Ram Hospital",
+                ambulanceAvailability: "busy",
+                lastUpdated: new Date(Date.now() - 20 * 60 * 1000)
+            },
+            {
+                id: "7",
+                name: "BLK Super Speciality Hospital",
+                ambulanceAvailability: "available",
+                lastUpdated: new Date(Date.now() - 10 * 60 * 1000)
+            },
+            {
+                id: "8",
+                name: "Indraprastha Apollo Hospital",
+                ambulanceAvailability: "unknown",
+                lastUpdated: new Date(Date.now() - 90 * 60 * 1000)
+            }
+        ];
+
+        function formatTimeAgo(date) {
+            const now = new Date();
+            const diff = Math.floor((now - date) / 1000);
+            
+            if (diff < 60) return 'just now';
+            if (diff < 3600) return `${Math.floor(diff / 60)} minutes ago`;
+            if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`;
+            return `${Math.floor(diff / 86400)} days ago`;
+        }
+
+        function getStatusInfo(status) {
+            switch(status) {
+                case 'available':
+                    return { color: 'text-green-600 bg-green-100 border-green-200', text: 'Available', icon: 'check-circle' };
+                case 'busy':
+                    return { color: 'text-red-600 bg-red-100 border-red-200', text: 'Busy', icon: 'times-circle' };
+                default:
+                    return { color: 'text-gray-600 bg-gray-100 border-gray-200', text: 'Unknown', icon: 'question-circle' };
+            }
+        }
+
+        function updateAvailability(hospitalId, newStatus) {
+            // Update local state
+            const hospital = hospitals.find(h => h.id === hospitalId);
+            if (hospital) {
+                hospital.ambulanceAvailability = newStatus;
+                hospital.lastUpdated = new Date();
+                renderAdminHospitals();
+                alert('Hospital availability updated successfully!');
+            }
+        }
+
+        function renderAdminHospitals() {
+            const container = document.getElementById('admin-hospitals-list');
+            
+            container.innerHTML = hospitals.map(hospital => {
+                const statusInfo = getStatusInfo(hospital.ambulanceAvailability);
+                
+                return `
+                    <div class="border-2 border-gray-200 rounded-2xl p-6 hover:shadow-lg transition-all">
+                        <div class="flex flex-col lg:flex-row lg:justify-between lg:items-start mb-6">
+                            <div>
+                                <h3 class="text-xl font-black text-gray-800 mb-3">${hospital.name}</h3>
+                                <div class="text-gray-500 text-base mb-4">
+                                    <i class="fas fa-clock mr-2"></i>
+                                    <span>Last updated: ${formatTimeAgo(hospital.lastUpdated)}</span>
+                                </div>
+                            </div>
+                            <div class="inline-flex items-center px-4 py-2 rounded-full text-lg font-medium ${statusInfo.color} border-2">
+                                <i class="fas fa-${statusInfo.icon} mr-2"></i>
+                                <span>${statusInfo.text}</span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap gap-3">
+                            <button
+                                onclick="updateAvailability('${hospital.id}', 'available')"
+                                class="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all transform hover:scale-105 text-lg shadow-lg"
+                            >
+                                <i class="fas fa-check mr-2"></i>
+                                Available
+                            </button>
+                            <button
+                                onclick="updateAvailability('${hospital.id}', 'busy')"
+                                class="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all transform hover:scale-105 text-lg shadow-lg"
+                            >
+                                <i class="fas fa-times mr-2"></i>
+                                Busy
+                            </button>
+                            <button
+                                onclick="updateAvailability('${hospital.id}', 'unknown')"
+                                class="px-6 py-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-all transform hover:scale-105 text-lg shadow-lg"
+                            >
+                                <i class="fas fa-question mr-2"></i>
+                                Unknown
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Load hospitals when page loads
+        document.addEventListener('DOMContentLoaded', renderAdminHospitals);
+    </script>
+</body>
+</html>

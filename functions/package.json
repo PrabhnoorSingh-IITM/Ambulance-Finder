@@ -4,7 +4,6 @@
   "description": "Firebase Cloud Functions for Smart Ambulance Finder",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint .",
     "serve": "firebase emulators:start --only functions",
     "shell": "firebase functions:shell",
     "start": "npm run shell",
