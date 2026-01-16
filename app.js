@@ -142,8 +142,7 @@ class HospitalAPI {
             
             return {
                 ...hospital,
-                distance: distance,
-                coordinates: [hospital.location.latitude, hospital.location.longitude]
+                distance: distance
             };
         }).sort((a, b) => a.distance - b.distance);
     }
@@ -170,7 +169,141 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
     return Math.round(R * c * 10) / 10; // Distance in km, rounded to 1 decimal
 }
 
-// Location Service
+// Google Maps Service
+class GoogleMapsService {
+    static map = null;
+    static markers = [];
+    static infoWindow = null;
+
+    static async initializeMap(userLocation, hospitals) {
+        return new Promise((resolve) => {
+            window.initMap = () => {
+                // Create map centered on user location
+                this.map = new google.maps.Map(document.getElementById('map'), {
+                    center: { lat: userLocation.latitude, lng: userLocation.longitude },
+                    zoom: 13,
+                    styles: [
+                        {
+                            featureType: "poi",
+                            elementType: "labels",
+                            stylers: [{ visibility: "off" }]
+                        }
+                    ]
+                });
+
+                // Add user location marker
+                this.addUserLocationMarker(userLocation);
+
+                // Add hospital markers
+                this.addHospitalMarkers(hospitals);
+
+                resolve();
+            };
+        });
+    }
+
+    static addUserLocationMarker(userLocation) {
+        const userMarker = new google.maps.Marker({
+            position: { lat: userLocation.latitude, lng: userLocation.longitude },
+            map: this.map,
+            title: "Your Location",
+            icon: {
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 8,
+                fillColor: "#059669",
+                fillOpacity: 0.8,
+                strokeColor: "#ffffff",
+                strokeWeight: 2
+            }
+        });
+
+        const infoWindow = new google.maps.InfoWindow({
+            content: `
+                <div class="p-2">
+                    <h3 class="font-bold user-location-marker">Your Location</h3>
+                    <p class="text-sm">Accuracy: ±${userLocation.accuracy || 50}m</p>
+                </div>
+            `
+        });
+
+        userMarker.addListener('click', () => {
+            infoWindow.open(this.map, userMarker);
+        });
+    }
+
+    static addHospitalMarkers(hospitals) {
+        this.infoWindow = new google.maps.InfoWindow();
+
+        hospitals.forEach(hospital => {
+            const marker = new google.maps.Marker({
+                position: { lat: hospital.location.latitude, lng: hospital.location.longitude },
+                map: this.map,
+                title: hospital.name,
+                icon: {
+                    path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+                    scale: 6,
+                    fillColor: "#dc2626",
+                    fillOpacity: 0.9,
+                    strokeColor: "#ffffff",
+                    strokeWeight: 1
+                }
+            });
+
+            const infoContent = `
+                <div class="p-3 max-w-xs">
+                    <h3 class="font-bold hospital-marker mb-2">${hospital.name}</h3>
+                    <p class="text-sm text-gray-600 mb-1">
+                        <i class="fas fa-map-marker-alt mr-1"></i>
+                        ${hospital.address}
+                    </p>
+                    <p class="text-sm mb-1">
+                        <i class="fas fa-route mr-1"></i>
+                        <strong>Distance:</strong> ${hospital.distance} km
+                    </p>
+                    <p class="text-sm mb-1">
+                        <i class="fas fa-ambulance mr-1"></i>
+                        <strong>Ambulances:</strong> ${hospital.ambulanceCount}
+                    </p>
+                    <p class="text-sm mb-2">
+                        <i class="fas fa-phone mr-1"></i>
+                        <strong>Phone:</strong> ${hospital.phone}
+                    </p>
+                    ${hospital.emergencyBed ? `
+                        <div class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">
+                            <i class="fas fa-procedures mr-1"></i>
+                            Emergency Bed Available
+                        </div>
+                    ` : ''}
+                    <div class="mt-3 flex space-x-2">
+                        <button onclick="window.location.href='tel:${hospital.phone}'" 
+                                class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700">
+                            <i class="fas fa-phone mr-1"></i>
+                            Call
+                        </button>
+                        <button onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${hospital.location.latitude},${hospital.location.longitude}')"
+                                class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
+                            <i class="fas fa-directions mr-1"></i>
+                            Directions
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            marker.addListener('click', () => {
+                this.infoWindow.setContent(infoContent);
+                this.infoWindow.open(this.map, marker);
+            });
+
+            this.markers.push(marker);
+        });
+    }
+
+    static updateMapCenter(userLocation) {
+        if (this.map) {
+            this.map.setCenter({ lat: userLocation.latitude, lng: userLocation.longitude });
+        }
+    }
+}
 class LocationService {
     static async requestLocationPermission() {
         return new Promise((resolve, reject) => {
@@ -274,7 +407,6 @@ function App() {
     const [hospitals, setHospitals] = useState([]);
     const [filteredHospitals, setFilteredHospitals] = useState([]);
     const [filteredAmbulances, setFilteredAmbulances] = useState(ambulanceServices);
-    const [map, setMap] = useState(null);
     const [userLocation, setUserLocation] = useState(null);
     const [locationError, setLocationError] = useState(null);
     const [isLoadingLocation, setIsLoadingLocation] = useState(true);
@@ -340,36 +472,10 @@ function App() {
 
     // Initialize map when hospitals tab is active and data is ready
     useEffect(() => {
-        if (activeTab === 'hospitals' && !map && userLocation && hospitals.length > 0) {
-            setTimeout(() => {
-                const leafletMap = L.map('map').setView([userLocation.latitude, userLocation.longitude], 12);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors'
-                }).addTo(leafletMap);
-                
-                // Add user location marker
-                L.marker([userLocation.latitude, userLocation.longitude]).addTo(leafletMap)
-                    .bindPopup('Your Location')
-                    .openPopup();
-                
-                // Add hospital markers
-                hospitals.forEach(hospital => {
-                    const marker = L.marker(hospital.coordinates).addTo(leafletMap);
-                    marker.bindPopup(`
-                        <div class="p-2">
-                            <h3 class="font-bold">${hospital.name}</h3>
-                            <p class="text-sm">${hospital.address}</p>
-                            <p class="text-sm">Distance: ${hospital.distance} km</p>
-                            <p class="text-sm">Ambulances: ${hospital.ambulanceCount}</p>
-                            <p class="text-sm">Phone: ${hospital.phone}</p>
-                        </div>
-                    `);
-                });
-                
-                setMap(leafletMap);
-            }, 100);
+        if (activeTab === 'hospitals' && userLocation && hospitals.length > 0) {
+            GoogleMapsService.initializeMap(userLocation, hospitals);
         }
-    }, [activeTab, map, userLocation, hospitals]);
+    }, [activeTab, userLocation, hospitals]);
 
     const formatLastUpdate = (date) => {
         const minutes = Math.floor((Date.now() - date) / 60000);
