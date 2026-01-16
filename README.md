@@ -282,5 +282,6 @@ For issues, questions, or contributions:
 - **Mobile responsive**: Works on all devices
 
 ---
-
+<!--
 **Built with ❤️ for emergency medical services accessibility**
+-->
