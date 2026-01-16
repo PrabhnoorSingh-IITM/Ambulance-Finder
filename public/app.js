@@ -66,6 +66,186 @@ const hospitalDatabase = [
         specialties: ["Emergency", "Cardiology", "Heart Surgery", "Trauma"],
         rating: 4.7,
         lastUpdated: new Date()
+    },
+    {
+        id: 6,
+        name: "Sir Ganga Ram Hospital",
+        location: { latitude: 28.5672, longitude: 77.2432 },
+        address: "Rajender Nagar, New Delhi",
+        phone: "+91-11-27003400",
+        ambulanceCount: 6,
+        emergencyBeds: 20,
+        specialties: ["Emergency", "Cardiology", "Neurology", "Orthopedics"],
+        rating: 4.4,
+        lastUpdated: new Date()
+    },
+    {
+        id: 7,
+        name: "Indraprastha Apollo Hospital",
+        location: { latitude: 28.6270, longitude: 77.2090 },
+        address: "Sarita Vihar, New Delhi",
+        phone: "+91-11-26895000",
+        ambulanceCount: 3,
+        emergencyBeds: 10,
+        specialties: ["Emergency", "Cardiology", "Gastroenterology", "Pulmonology"],
+        rating: 4.2,
+        lastUpdated: new Date()
+    },
+    {
+        id: 8,
+        name: "BLK Super Speciality Hospital",
+        location: { latitude: 28.7061, longitude: 77.1027 },
+        address: "Pusa, New Delhi",
+        phone: "+91-11-22566555",
+        ambulanceCount: 7,
+        emergencyBeds: 25,
+        specialties: ["Emergency", "Cardiology", "Neurosurgery", "Urology"],
+        rating: 4.6,
+        lastUpdated: new Date()
+    },
+    {
+        id: 9,
+        name: "Medanta - The Medicity",
+        location: { latitude: 28.4479, longitude: 77.0764 },
+        address: "Sector 38, Gurgaon",
+        phone: "+91-124-4834222",
+        ambulanceCount: 8,
+        emergencyBeds: 30,
+        specialties: ["Emergency", "Cardiology", "Neurology", "Transplant"],
+        rating: 4.7,
+        lastUpdated: new Date()
+    },
+    {
+        id: 10,
+        name: "Artemis Hospital",
+        location: { latitude: 28.5406, longitude: 77.1548 },
+        address: "Sector 51, Gurgaon",
+        phone: "+91-124-45111111",
+        ambulanceCount: 5,
+        emergencyBeds: 22,
+        specialties: ["Emergency", "Cardiology", "Oncology", "Orthopedics"],
+        rating: 4.5,
+        lastUpdated: new Date()
+    },
+    {
+        id: 11,
+        name: "Fortis Memorial Research Institute",
+        location: { latitude: 28.5489, longitude: 77.2197 },
+        address: "Sector 44, Gurgaon",
+        phone: "+91-124-4199999",
+        ambulanceCount: 6,
+        emergencyBeds: 28,
+        specialties: ["Emergency", "Cardiology", "Neurology", "Critical Care"],
+        rating: 4.8,
+        lastUpdated: new Date()
+    },
+    {
+        id: 12,
+        name: "Max Smart Super Speciality Hospital",
+        location: { latitude: 28.4975, longitude: 77.0918 },
+        address: "Saket, New Delhi",
+        phone: "+91-11-40559555",
+        ambulanceCount: 4,
+        emergencyBeds: 16,
+        specialties: ["Emergency", "Cardiology", "Gastroenterology", "Pulmonology"],
+        rating: 4.3,
+        lastUpdated: new Date()
+    },
+    {
+        id: 13,
+        name: "Rockland Hospital",
+        location: { latitude: 28.6951, longitude: 77.1227 },
+        address: "Qutab Institutional Area, New Delhi",
+        phone: "+91-11-26177000",
+        ambulanceCount: 3,
+        emergencyBeds: 12,
+        specialties: ["Emergency", "Cardiology", "Neurosurgery", "Trauma"],
+        rating: 4.1,
+        lastUpdated: new Date()
+    },
+    {
+        id: 14,
+        name: "Batra Hospital & Medical Research Centre",
+        location: { latitude: 28.5632, longitude: 77.2754 },
+        address: "Tughlakabad, New Delhi",
+        phone: "+91-11-22099000",
+        ambulanceCount: 2,
+        emergencyBeds: 8,
+        specialties: ["Emergency", "Cardiology", "Urology", "Laparoscopic Surgery"],
+        rating: 4.0,
+        lastUpdated: new Date()
+    },
+    {
+        id: 15,
+        name: "Primus Super Speciality Hospital",
+        location: { latitude: 28.7021, longitude: 77.1234 },
+        address: "Chanakyapuri, New Delhi",
+        phone: "+91-11-42404040",
+        ambulanceCount: 4,
+        emergencyBeds: 14,
+        specialties: ["Emergency", "Cardiology", "Neurology", "Orthopedics"],
+        rating: 4.2,
+        lastUpdated: new Date()
+    },
+    {
+        id: 16,
+        name: "Columbia Asia Hospital",
+        location: { latitude: 28.5489, longitude: 77.0895 },
+        address: "Sector 44, Gurgaon",
+        phone: "+91-124-41414100",
+        ambulanceCount: 5,
+        emergencyBeds: 18,
+        specialties: ["Emergency", "Cardiology", "Neurology", "Transplant"],
+        rating: 4.4,
+        lastUpdated: new Date()
+    },
+    {
+        id: 17,
+        name: "Paras Hospital",
+        location: { latitude: 28.6395, longitude: 77.3535 },
+        address: "Gurgaon",
+        phone: "+91-124-4002400",
+        ambulanceCount: 3,
+        emergencyBeds: 11,
+        specialties: ["Emergency", "Cardiology", "Gastroenterology", "Critical Care"],
+        rating: 4.3,
+        lastUpdated: new Date()
+    },
+    {
+        id: 18,
+        name: "Park Hospital",
+        location: { latitude: 28.6951, longitude: 77.1227 },
+        address: "Greater Kailash, New Delhi",
+        phone: "+91-11-26486000",
+        ambulanceCount: 4,
+        emergencyBeds: 15,
+        specialties: ["Emergency", "Cardiology", "Neurology", "Orthopedics"],
+        rating: 4.2,
+        lastUpdated: new Date()
+    },
+    {
+        id: 19,
+        name: "Manipal Hospital",
+        location: { latitude: 28.5996, longitude: 77.0290 },
+        address: "Dwarka, New Delhi",
+        phone: "+91-11-47677000",
+        ambulanceCount: 6,
+        emergencyBeds: 24,
+        specialties: ["Emergency", "Cardiology", "Neurology", "Oncology"],
+        rating: 4.6,
+        lastUpdated: new Date()
+    },
+    {
+        id: 20,
+        name: "Jaypee Hospital",
+        location: { latitude: 28.6308, longitude: 77.3717 },
+        address: "Sector 128, Noida",
+        phone: "+91-120-4771234",
+        ambulanceCount: 7,
+        emergencyBeds: 32,
+        specialties: ["Emergency", "Cardiology", "Neurology", "Trauma"],
+        rating: 4.5,
+        lastUpdated: new Date()
     }
 ];
 
@@ -155,6 +335,8 @@ const App = () => {
             return;
         }
 
+        console.log('Initializing map...');
+
         const center = userLocation ? 
             { lat: userLocation.latitude, lng: userLocation.longitude } :
             { lat: 28.6139, lng: 77.2090 }; // Delhi center
@@ -207,7 +389,7 @@ const App = () => {
         });
 
         setMap(mapInstance);
-        console.log('Map initialized successfully');
+        console.log('Map initialized successfully with', hospitals.length, 'hospitals');
     };
 
     const requestLocation = async () => {
