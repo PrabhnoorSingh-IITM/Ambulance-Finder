@@ -1,10 +1,5 @@
 const { useState, useEffect } = React;
 
-// Initialize Google Maps callback
-window.initMap = function() {
-    console.log('Google Maps API loaded successfully');
-};
-
 // Backend Database Simulation - Delhi Area Hospitals with real data
 const hospitalDatabase = [
     {
@@ -315,7 +310,8 @@ const App = () => {
                 if (window.google && window.google.maps && mapElement) {
                     initializeMap();
                 } else {
-                    setTimeout(initializeWhenReady, 300);
+                    console.log('Waiting for Google Maps to load...');
+                    setTimeout(initializeWhenReady, 500);
                 }
             };
             // Small delay to ensure DOM is rendered
@@ -331,7 +327,8 @@ const App = () => {
         }
         
         if (!window.google || !window.google.maps) {
-            console.log('Google Maps not loaded');
+            console.log('Google Maps not loaded, showing fallback');
+            mapElement.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f3f4f6; border-radius: 0.5rem;"><div style="text-align: center; padding: 2rem;"><h3 style="color: #374151; margin-bottom: 1rem;">Map Loading...</h3><p style="color: #6b7280;">Please wait while we load the map...</p></div></div>';
             return;
         }
 
