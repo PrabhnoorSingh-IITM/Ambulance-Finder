@@ -641,7 +641,7 @@ function App() {
             </header>
 
             {/* Main Content */}
-            <main className="container mx-auto px-4 py-6">
+            <main className="container mx-auto px-4 py-6">{/* Main content wrapper */}
                 {/* Location Status */}
                 {locationError && (
                     <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg mb-4">
@@ -816,7 +816,7 @@ function App() {
                                     <div className="flex justify-between items-start mb-3">
                                         <div>
                                             <h3 className="text-lg font-bold text-gray-800">{service.name}</h3>
-                                    </div>
+                                        </div>
                                     
                                     <div className="grid grid-cols-2 gap-4 mb-4">
                                         <div className="text-center p-3 bg-gray-50 rounded-lg">
@@ -848,6 +848,7 @@ function App() {
                                         <i className="fas fa-phone mr-2"></i>
                                         {service.status === 'available' ? 'Call Now' : 'Currently Unavailable'}
                                     </button>
+                                </div>
                                 </div>
                             ))}
                         </div>
