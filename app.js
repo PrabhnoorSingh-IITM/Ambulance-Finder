@@ -129,15 +129,9 @@ const hospitalDatabase = [
 // Backend API Simulation with Google Places Integration
 class HospitalAPI {
     static async fetchHospitals(userLocation) {
-        try {
-            // Try to fetch real hospitals from Google Places API
-            const hospitals = await GooglePlacesService.findNearbyHospitals(userLocation);
-            return hospitals;
-        } catch (error) {
-            console.error('Error fetching from Google Places:', error);
-            // Fallback to dummy data if Google Places fails
-            return GooglePlacesService.getFallbackHospitals(userLocation);
-        }
+        // Use fallback data immediately for better UX
+        // In production, you could add a timeout to try Google Places API
+        return GooglePlacesService.getFallbackHospitals(userLocation);
     }
     
     static async updateAmbulanceCount(hospitalId, newCount) {
@@ -499,7 +493,6 @@ function App() {
     const [userLocation, setUserLocation] = useState(null);
     const [locationError, setLocationError] = useState(null);
     const [isLoadingLocation, setIsLoadingLocation] = useState(true);
-    const [isLoadingHospitals, setIsLoadingHospitals] = useState(false);
 
     // Initialize location and fetch hospitals
     useEffect(() => {
@@ -511,30 +504,26 @@ function App() {
         setLocationError(null);
         
         try {
-            // Request location permission
+            // Get user location
             const location = await LocationService.requestLocationPermission();
             setUserLocation(location);
             
-            // Fetch real hospitals from Google Places API based on location
-            setIsLoadingHospitals(true);
+            // Fetch hospitals using fallback data immediately
             const hospitalData = await HospitalAPI.fetchHospitals(location);
             setHospitals(hospitalData);
             setFilteredHospitals(hospitalData);
-            setIsLoadingHospitals(false);
             
         } catch (error) {
             console.error('Location error:', error);
-            setLocationError(error.message);
+            setLocationError('Unable to get your location. Using default location.');
             
-            // Fallback to default location
+            // Use default location (Delhi)
             const defaultLocation = { latitude: 28.63, longitude: 77.12 };
             setUserLocation(defaultLocation);
             
-            setIsLoadingHospitals(true);
             const hospitalData = await HospitalAPI.fetchHospitals(defaultLocation);
             setHospitals(hospitalData);
             setFilteredHospitals(hospitalData);
-            setIsLoadingHospitals(false);
         } finally {
             setIsLoadingLocation(false);
         }
@@ -619,7 +608,7 @@ function App() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 flex flex-col">
             {/* Header */}
             <header className="bg-red-600 text-white shadow-lg">
                 <div className="container mx-auto px-4 py-4">
@@ -641,7 +630,7 @@ function App() {
             </header>
 
             {/* Main Content */}
-            <main className="container mx-auto px-4 py-6">{/* Main content wrapper */}
+            <main className="container mx-auto px-4 py-6 flex-grow">{/* Main content wrapper */}
                 {/* Location Status */}
                 {locationError && (
                     <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg mb-4">
@@ -718,62 +707,55 @@ function App() {
                                 Nearby Hospitals ({filteredHospitals.length})
                             </h2>
                             
-                            {isLoadingHospitals ? (
-                                <div className="text-center py-8">
-                                    <i className="fas fa-spinner fa-spin text-4xl text-red-600 mb-4"></i>
-                                    <p className="text-gray-600">Fetching hospitals from Google Places...</p>
-                                    <p className="text-sm text-gray-500">Finding real hospitals near your location</p>
-                                </div>
-                            ) : (
-                                <div className="space-y-4">
+                            <div className="space-y-3">
                                     {filteredHospitals.map(hospital => {
                                         const ambulanceStatus = getAmbulanceStatus(hospital.ambulanceCount);
                                         return (
-                                            <div key={hospital.id} className="bg-white rounded-lg shadow-md p-4 sm:p-6 hover:shadow-lg transition-shadow">
-                                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 space-y-3 sm:space-y-0">
+                                            <div key={hospital.id} className="bg-white rounded-lg shadow-md p-3 sm:p-4 hover:shadow-lg transition-shadow">
+                                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 space-y-2 sm:space-y-0">
                                                     <div className="flex-1">
-                                                        <h3 className="text-base sm:text-lg font-bold text-gray-800 mb-2">{hospital.name}</h3>
-                                                        <p className="text-gray-600 flex items-center text-sm mb-1">
-                                                            <i className="fas fa-map-marker-alt mr-2 text-red-500"></i>
+                                                        <h3 className="text-base sm:text-lg font-bold text-gray-800 mb-1">{hospital.name}</h3>
+                                                        <p className="text-gray-600 flex items-center text-xs sm:text-sm mb-1">
+                                                            <i className="fas fa-map-marker-alt mr-1 sm:mr-2 text-red-500"></i>
                                                             <span className="break-words">{hospital.address}</span>
                                                         </p>
                                                     </div>
                                                     <div className="text-right sm:text-left">
-                                                        <div className="text-xl sm:text-2xl font-bold text-red-600 mb-1">{hospital.distance} km</div>
-                                                        <div className="flex items-center justify-center sm:justify-start mt-1">
-                                                            <i className="fas fa-star text-yellow-400 mr-1"></i>
-                                                            <span className="text-gray-600 text-sm">{hospital.rating}</span>
+                                                        <div className="text-lg sm:text-xl font-bold text-red-600 mb-1">{hospital.distance} km</div>
+                                                        <div className="flex items-center justify-center sm:justify-start">
+                                                            <i className="fas fa-star text-yellow-400 mr-1 text-xs"></i>
+                                                            <span className="text-gray-600 text-xs sm:text-sm">{hospital.rating}</span>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 
-                                                <div className="flex flex-wrap gap-2 mb-3">
+                                                <div className="flex flex-wrap gap-1 sm:gap-2 mb-2">
                                                     {hospital.specialties.map((specialty, index) => (
-                                                        <span key={index} className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs sm:text-sm">
+                                                        <span key={index} className="bg-blue-100 text-blue-800 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-xs">
                                                             {specialty}
                                                         </span>
                                                     ))}
                                                     {hospital.emergencyBed && (
-                                                        <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs sm:text-sm font-medium">
+                                                        <span className="bg-green-100 text-green-800 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-xs font-medium">
                                                             <i className="fas fa-procedures mr-1"></i>
                                                             Emergency Bed
                                                         </span>
                                                     )}
-                                                    <span className={`px-2 py-1 rounded-full text-xs sm:text-sm font-medium ${ambulanceStatus.class}`}>
+                                                    <span className={`px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-xs font-medium ${ambulanceStatus.class}`}>
                                                         <i className="fas fa-ambulance mr-1"></i>
                                                         {ambulanceStatus.text}
                                                     </span>
                                                 </div>
                                                 
-                                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
-                                                    <div className="flex items-center text-gray-600 text-sm">
-                                                        <i className="fas fa-phone-alt mr-2 text-green-600"></i>
-                                                        <span className="text-xs sm:text-sm">{hospital.phone}</span>
+                                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-2 sm:space-y-0">
+                                                    <div className="flex items-center text-gray-600 text-xs sm:text-sm">
+                                                        <i className="fas fa-phone-alt mr-1 sm:mr-2 text-green-600"></i>
+                                                        <span>{hospital.phone}</span>
                                                     </div>
-                                                    <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                                                    <div className="flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-2">
                                                         <button
                                                             onClick={() => handleCallAmbulance(hospital)}
-                                                            className={`w-full sm:w-auto px-4 py-3 sm:py-2 rounded-lg font-medium transition-colors text-sm sm:text-base ${
+                                                            className={`w-full sm:w-auto px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-medium transition-colors text-xs sm:text-sm ${
                                                                 hospital.ambulanceCount > 0
                                                                     ? 'bg-red-600 text-white hover:bg-red-700'
                                                                     : 'bg-gray-300 text-gray-600 cursor-not-allowed'
@@ -786,7 +768,7 @@ function App() {
                                                         </button>
                                                         <button
                                                             onClick={() => handleEmergencyCall(hospital.phone)}
-                                                            className="w-full sm:w-auto bg-green-600 text-white px-4 py-3 sm:py-2 rounded-lg hover:bg-green-700 transition-colors text-sm sm:text-base"
+                                                            className="w-full sm:w-auto bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm"
                                                         >
                                                             <i className="fas fa-phone mr-2"></i>
                                                             <span className="block sm:hidden">Call</span>
@@ -798,7 +780,6 @@ function App() {
                                         );
                                     })}
                                 </div>
-                            )}
                         </div>
                     </div>
                 )}
@@ -806,39 +787,37 @@ function App() {
                 {/* Ambulances Tab */}
                 {activeTab === 'ambulances' && (
                     <div>
-                        <h2 className="text-xl font-bold mb-4 text-gray-800">
+                        <h2 className="text-xl font-bold mb-3 text-gray-800">
                             <i className="fas fa-ambulance mr-2 text-red-600"></i>
                             Ambulance Services ({filteredAmbulances.length})
                         </h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             {filteredAmbulances.map(service => (
-                                <div key={service.id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-                                    <div className="flex justify-between items-start mb-3">
+                                <div key={service.id} className="bg-white rounded-lg shadow-md p-3 sm:p-4 hover:shadow-lg transition-shadow">
+                                    <div className="flex justify-between items-start mb-2">
                                         <div>
                                             <h3 className="text-lg font-bold text-gray-800">{service.name}</h3>
                                         </div>
                                     
-                                    <div className="grid grid-cols-2 gap-4 mb-4">
-                                        <div className="text-center p-3 bg-gray-50 rounded-lg">
-                                            <div className="text-xl sm:text-2xl font-bold text-red-600">{service.vehicles}</div>
-                                            <div className="text-xs sm:text-sm text-gray-600">Available Vehicles</div>
+                                    <div className="grid grid-cols-2 gap-2 mb-3">
+                                        <div className="text-center p-1.5 bg-gray-50 rounded-lg">
+                                            <div className="text-lg sm:text-xl font-bold text-red-600">{service.vehicles}</div>
+                                            <div className="text-xs text-gray-600">Available Vehicles</div>
                                         </div>
-                                        <div className="text-center p-3 bg-gray-50 rounded-lg">
-                                            <div className="text-base sm:text-lg font-bold text-gray-800">{service.responseTime}</div>
-                                            <div className="text-xs sm:text-sm text-gray-600">Response Time</div>
+                                        <div className="text-center p-1.5 bg-gray-50 rounded-lg">
+                                            <div className="text-sm sm:text-base font-bold text-gray-800">{service.responseTime}</div>
+                                            <div className="text-xs text-gray-600">Response Time</div>
                                         </div>
                                     </div>
                                     
-                                    <div className="flex justify-between items-center mb-3">
-                                        <div className="text-xs sm:text-sm text-gray-500">
+                                    <div className="text-xs sm:text-sm text-gray-500 mb-3 mt-2">
                                             <i className="fas fa-clock mr-1"></i>
                                             Last updated: {formatLastUpdate(service.lastUpdate)}
                                         </div>
-                                    </div>
                                     
                                     <button
                                         onClick={() => handleEmergencyCall(service.phone)}
-                                        className={`w-full py-3 px-4 rounded-lg font-medium transition-colors text-sm sm:text-base ${
+                                        className={`w-full py-2 px-3 rounded-lg font-medium transition-colors text-sm ${
                                             service.status === 'available' 
                                                 ? 'bg-green-600 text-white hover:bg-green-700' 
                                                 : 'bg-gray-300 text-gray-600 cursor-not-allowed'
