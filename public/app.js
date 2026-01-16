@@ -1,4 +1,4 @@
-const { useState, useEffect, useRef } = React;
+const { useState, useEffect } = React;
 
 // Backend Database Simulation - Delhi Area Hospitals with real data
 const hospitalDatabase = [
@@ -99,10 +99,6 @@ const App = () => {
     });
     const [showAddHospital, setShowAddHospital] = useState(false);
 
-    // Refs for text inputs
-    const searchInputRef = useRef(null);
-    const passwordInputRef = useRef(null);
-
     // Initialize hospitals with distances on mount
     useEffect(() => {
         const hospitalsWithDistance = hospitalDatabase.map(hospital => ({
@@ -127,15 +123,28 @@ const App = () => {
 
     // Initialize Google Maps when view changes to hospitals
     useEffect(() => {
-        if (currentView === 'hospitals' && window.google && window.google.maps && !map) {
-            setTimeout(() => initializeMap(), 100);
+        if (currentView === 'hospitals' && !map) {
+            // Wait for Google Maps to load
+            const checkGoogleMaps = () => {
+                if (window.google && window.google.maps) {
+                    setTimeout(() => initializeMap(), 500);
+                } else {
+                    setTimeout(checkGoogleMaps, 100);
+                }
+            };
+            checkGoogleMaps();
         }
     }, [currentView, userLocation, hospitals]);
 
     const initializeMap = () => {
         const mapElement = document.getElementById('map');
-        if (!mapElement || !window.google || !window.google.maps) {
-            console.log('Map element or Google Maps not ready');
+        if (!mapElement) {
+            console.log('Map element not found');
+            return;
+        }
+        
+        if (!window.google || !window.google.maps) {
+            console.log('Google Maps not loaded');
             return;
         }
 
@@ -375,7 +384,6 @@ const App = () => {
                     {/* Search Bar */}
                     <div className="relative">
                         <input
-                            ref={searchInputRef}
                             type="text"
                             placeholder="Search hospitals, specialties, or locations..."
                             value={searchQuery}
@@ -487,7 +495,6 @@ const App = () => {
                     <div>
                         <label className="block text-gray-700 font-semibold mb-2">Password</label>
                         <input
-                            ref={passwordInputRef}
                             type="password"
                             value={adminPassword}
                             onChange={(e) => setAdminPassword(e.target.value)}
