@@ -29,3 +29,4 @@ logs/
 # Build
 dist/
 build/
+functions/service-account-key.json
