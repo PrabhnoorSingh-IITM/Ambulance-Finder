@@ -1,28 +1,25 @@
 {
   "name": "smart-ambulance-finder",
-  "version": "1.0.0",
-  "description": "Emergency medical services finder with Firebase backend",
-  "main": "src/index.js",
+  "version": "2.0.0",
+  "description": "A modern emergency medical services locator that helps users quickly find nearby hospitals with real-time ambulance availability and emergency bed information.",
+  "main": "public/index.html",
   "scripts": {
-    "start": "npx serve public",
-    "build": "echo 'Build complete - ready for deployment'",
-    "deploy": "firebase deploy"
-  },
-  "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  },
-  "devDependencies": {
-    "serve": "^14.2.0"
+    "deploy": "firebase deploy --only hosting",
+    "serve": "firebase serve --only hosting"
   },
   "keywords": [
     "emergency",
     "medical",
     "ambulance",
     "hospital",
-    "firebase",
-    "react"
+    "locator",
+    "react",
+    "firebase"
   ],
   "author": "Smart Ambulance Finder Team",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PrabhnoorSingh-IITM/Ambulance-Finder.git"
+  }
 }
