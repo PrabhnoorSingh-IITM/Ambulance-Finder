@@ -1,19 +1,22 @@
 import React from 'react';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js';
+import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js';
+import { getFunctions } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-functions.js';
 
 // Firebase configuration
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT",
-    storageBucket: "YOUR_PROJECT.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyCUkNwf9TklqtndzzTqtLmadflsMgc2380",
+  authDomain: "smart-ambulance-finder.firebaseapp.com",
+  projectId: "smart-ambulance-finder",
+  storageBucket: "smart-ambulance-finder.appspot.com",
+  messagingSenderId: "1001766044880",
+  appId: "1:1001766044880:web:0ef411fa66cc2a2cd3cad5"
 };
 
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const functions = firebase.functions();
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const functions = getFunctions(app);
 
 // Get nearby hospitals from Cloud Function
 export const getNearbyHospitals = async (latitude, longitude) => {

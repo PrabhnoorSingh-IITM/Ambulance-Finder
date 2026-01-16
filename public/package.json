@@ -4,7 +4,7 @@
   "description": "Emergency medical services finder with Firebase backend",
   "main": "src/App.jsx",
   "scripts": {
-    "start": "npx serve public",
+    "start": "npx serve . -p 3000",
     "build": "echo 'Build complete - ready for deployment'",
     "deploy": "firebase deploy"
   },
