@@ -129,15 +129,17 @@ const App = () => {
     // Initialize Google Maps when view changes to hospitals
     useEffect(() => {
         if (currentView === 'hospitals' && !map) {
-            // Wait for Google Maps to load
+            // Wait for DOM to be ready and Google Maps to load
             const initializeWhenReady = () => {
-                if (window.google && window.google.maps && document.getElementById('map')) {
+                const mapElement = document.getElementById('map');
+                if (window.google && window.google.maps && mapElement) {
                     initializeMap();
                 } else {
-                    setTimeout(initializeWhenReady, 200);
+                    setTimeout(initializeWhenReady, 300);
                 }
             };
-            initializeWhenReady();
+            // Small delay to ensure DOM is rendered
+            setTimeout(initializeWhenReady, 100);
         }
     }, [currentView, userLocation, hospitals]);
 
@@ -393,7 +395,12 @@ const App = () => {
                             placeholder="Search hospitals, specialties, or locations..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyDown={(e) => {
+                                // Allow any input without interference
+                                e.stopPropagation();
+                            }}
                             className="w-full px-4 py-3 rounded-xl text-gray-800 placeholder-gray-500 bg-white bg-opacity-90 backdrop-blur-lg focus:outline-none focus:ring-2 focus:ring-white"
+                            autoFocus
                         />
                         <i className="fas fa-search absolute right-4 top-4 text-gray-500"></i>
                     </div>
@@ -407,7 +414,7 @@ const App = () => {
                         <i className="fas fa-map-marked-alt mr-2 text-red-600"></i>
                         Hospital Locations
                     </h2>
-                    <div id="map" className="w-full h-96 rounded-xl"></div>
+                    <div id="map" className="w-full h-96 rounded-xl" style={{ minHeight: '400px' }}></div>
                 </div>
 
                 {/* Hospitals List */}
@@ -503,10 +510,11 @@ const App = () => {
                             type="password"
                             value={adminPassword}
                             onChange={(e) => setAdminPassword(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && handleAdminLogin()}
+                            onKeyDown={(e) => e.key === 'Enter' && handleAdminLogin()}
                             className="w-full px-4 py-4 border-2 border-gray-300 rounded-xl focus:border-gray-600 focus:outline-none text-lg transition-colors"
                             placeholder="Enter admin password"
                             autoComplete="current-password"
+                            autoFocus
                         />
                     </div>
 
