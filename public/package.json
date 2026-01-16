@@ -1,0 +1,28 @@
+{
+  "name": "smart-ambulance-finder",
+  "version": "1.0.0",
+  "description": "Emergency medical services finder with Firebase backend",
+  "main": "src/App.jsx",
+  "scripts": {
+    "start": "npx serve public",
+    "build": "echo 'Build complete - ready for deployment'",
+    "deploy": "firebase deploy"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "serve": "^14.2.0"
+  },
+  "keywords": [
+    "emergency",
+    "medical",
+    "ambulance",
+    "hospital",
+    "firebase",
+    "react"
+  ],
+  "author": "Smart Ambulance Finder Team",
+  "license": "MIT"
+}
