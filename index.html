@@ -21,20 +21,89 @@
         .status-available { color: #10b981; }
         .status-busy { color: #f59e0b; }
         .status-unavailable { color: #ef4444; }
+        
+        /* Responsive Map Styles */
         #map { 
-            height: 400px; 
+            height: 300px; 
             border-radius: 0.5rem; 
             width: 100%;
         }
+        
+        @media (min-width: 768px) {
+            #map {
+                height: 400px;
+            }
+        }
+        
         .map-container {
             position: relative;
         }
+        
         .hospital-marker {
             color: #dc2626;
             font-weight: bold;
         }
+        
         .user-location-marker {
             color: #059669;
+        }
+        
+        /* Responsive Layout */
+        .container {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        
+        @media (min-width: 640px) {
+            .container {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .container {
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
+        }
+        
+        /* Mobile Optimizations */
+        @media (max-width: 767px) {
+            .emergency-pulse {
+                font-size: 0.875rem;
+                padding: 0.5rem 1rem;
+            }
+            
+            .text-2xl {
+                font-size: 1.5rem;
+            }
+            
+            .text-xl {
+                font-size: 1.25rem;
+            }
+        }
+        
+        /* Touch-friendly buttons */
+        @media (max-width: 640px) {
+            button {
+                min-height: 44px;
+                min-width: 44px;
+            }
+        }
+        
+        /* Responsive Grid */
+        @media (max-width: 767px) {
+            .grid-cols-2 {
+                grid-template-columns: repeat(1, minmax(0, 1fr));
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .space-x-2 > * + * {
+                margin-left: 0.25rem;
+                margin-right: 0.25rem;
+            }
         }
     </style>
 </head>
